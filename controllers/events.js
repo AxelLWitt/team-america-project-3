@@ -94,3 +94,54 @@ export async function deleteEvent(req, res) {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 }
+
+export async function updateEvent(req, res) {
+  console.log("This is the body: ", req.body);
+  console.log("This is the params: ", req.params);
+
+  try {
+    const userId = req.params.id; // Assuming you have the user ID in req.params
+    const eventId = req.body.eventId; // Assuming you pass the event ID in req.body
+    console.log("This is the userId: ", userId);
+    console.log("This is the eventId: ", eventId);
+
+    if (!userId || !eventId) {
+      return res.status(400).json({ message: 'User ID and Event ID are required' });
+    }
+
+    // Check if the provided user ID is valid
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Find the event by ID and check if it exists
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Check if the event belongs to the specified user
+    if (event.userId.toString() !== userId) {
+      return res.status(403).json({ message: 'Event does not belong to this user' });
+    }
+
+    // Update the event with the provided data
+    const updatedData = {
+      name: req.body.name || event.name,
+      address: req.body.address || event.address,
+      coordinates: req.body.coordinates || event.coordinates,
+      imageUrl: req.body.imageUrl || event.imageUrl,
+      description: req.body.description || event.description,
+    };
+
+    const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedData, { new: true });
+
+    return res.status(200).json(updatedEvent);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+}

@@ -7,5 +7,6 @@ const router = Router()
 router.get('/', eventController.getEvents)
 router.post('/:id', eventController.createEvent)
 router.delete('/:id', eventController.deleteEvent)
+router.put('/:id', eventController.updateEvent)
 
 export default router
